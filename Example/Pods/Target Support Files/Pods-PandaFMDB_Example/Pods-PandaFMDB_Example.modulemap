@@ -1,0 +1,6 @@
+framework module Pods_PandaFMDB_Example {
+  umbrella header "Pods-PandaFMDB_Example-umbrella.h"
+
+  export *
+  module * { export * }
+}

@@ -1,0 +1,31 @@
+{
+  "name": "PandaFMDB",
+  "version": "0.1.0",
+  "summary": "PandaFMDB对FMDB的封装库",
+  "description": "FMDB是SQLite上最强大的工具，本库仅基于多个项目实践，封装FMDB，以便做到开箱即用",
+  "homepage": "https://github.com/openpandaOrg/PandaFMDB",
+  "license": "MIT",
+  "authors": {
+    "lingen.liu": "lingen.liu@gmail.com"
+  },
+  "source": {
+    "git": "https://github.com/openpandaOrg/PandaFMDB.git",
+    "tag": "0.1.0"
+  },
+  "platforms": {
+    "ios": "7.0"
+  },
+  "requires_arc": true,
+  "source_files": "Pod/Classes/**/*",
+  "resource_bundles": {
+    "PandaFMDB": [
+      "Pod/Assets/*.png"
+    ]
+  },
+  "public_header_files": "Pod/Classes/**/*.h",
+  "dependencies": {
+    "FMDB/SQLCipher": [
+
+    ]
+  }
+}
