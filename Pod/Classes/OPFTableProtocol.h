@@ -8,7 +8,9 @@
 
 #import <Foundation/Foundation.h>
 
-@protocol OPTableProtocol <NSObject>
+@class OPFTable;
+
+@protocol OPFTableProtocol <NSObject>
 
 
 @required
@@ -16,7 +18,7 @@
 /*
  * 实现此方法，用于数据库表的创建
  */
-+(NSArray*)initTable;
++(OPFTable*)createTable;
 
 /*
  *实现此方法，用于数据库表的升级功能

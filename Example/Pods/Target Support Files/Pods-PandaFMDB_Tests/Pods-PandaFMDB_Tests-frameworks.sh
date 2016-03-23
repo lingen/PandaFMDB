@@ -87,11 +87,9 @@ if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_framework "Pods-PandaFMDB_Tests/FMDB.framework"
   install_framework "Pods-PandaFMDB_Tests/PandaFMDB.framework"
   install_framework "Pods-PandaFMDB_Tests/SQLCipher.framework"
-  install_framework "Pods-PandaFMDB_Tests/FBSnapshotTestCase.framework"
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework "Pods-PandaFMDB_Tests/FMDB.framework"
   install_framework "Pods-PandaFMDB_Tests/PandaFMDB.framework"
   install_framework "Pods-PandaFMDB_Tests/SQLCipher.framework"
-  install_framework "Pods-PandaFMDB_Tests/FBSnapshotTestCase.framework"
 fi

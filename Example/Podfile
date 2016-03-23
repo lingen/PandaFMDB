@@ -8,5 +8,4 @@ end
 target 'PandaFMDB_Tests', :exclusive => true do
   pod 'PandaFMDB', :path => '../'
 
-  pod 'FBSnapshotTestCase'
 end

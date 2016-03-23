@@ -1,9 +1,4 @@
 PODS:
-  - FBSnapshotTestCase (2.0.7):
-    - FBSnapshotTestCase/SwiftSupport (= 2.0.7)
-  - FBSnapshotTestCase/Core (2.0.7)
-  - FBSnapshotTestCase/SwiftSupport (2.0.7):
-    - FBSnapshotTestCase/Core
   - FMDB/SQLCipher (2.6):
     - SQLCipher
   - PandaFMDB (0.1.0):
@@ -15,7 +10,6 @@ PODS:
     - SQLCipher/common
 
 DEPENDENCIES:
-  - FBSnapshotTestCase
   - PandaFMDB (from `../`)
 
 EXTERNAL SOURCES:
@@ -23,7 +17,6 @@ EXTERNAL SOURCES:
     :path: ../
 
 SPEC CHECKSUMS:
-  FBSnapshotTestCase: 7e85180d0d141a0cf472352edda7e80d7eaeb547
   FMDB: c1968bab3ab0aed38f66cb778ae1e7fa9a652b6e
   PandaFMDB: 60d2da87aa07c5743208a6f2387d0a0514cb4b52
   SQLCipher: 4684434d5791db86512cd7e02172aefba575849e
