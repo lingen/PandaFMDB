@@ -200,6 +200,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
  *  @return 返回是否执行成功
  */
 -(BOOL)syncExecuteUpdate:(NSString*)sql{
+    
+    [self p_checkMainThread];
+    
     __block BOOL success = NO;
     dispatch_sync(_threadQueue, ^{
         [_dbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
@@ -218,6 +221,8 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
  *  @return 返回是否执行成功
  */
 -(BOOL)syncExecuteUpdate:(NSString*)sql withDictionaryArgs:(NSDictionary*)args{
+    [self p_checkMainThread];
+    
     __block BOOL success = NO;
     dispatch_sync(_threadQueue, ^{
         [_dbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
@@ -236,6 +241,8 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
  *  @return 返回是否执行成功
  */
 -(BOOL)syncExecuteUpdate:(NSString*)sql withArrayArgs:(NSArray*)args{
+    [self p_checkMainThread];
+    
     __block BOOL success = NO;
     dispatch_sync(_threadQueue, ^{
         [_dbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
@@ -308,6 +315,8 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
  *  @return 返回成功或失败，只有所有的成功才会成功
  */
 -(BOOL)syncExecuteUpdates:(NSArray *)sqls{
+    [self p_checkMainThread];
+    
     __block BOOL success = NO;
     dispatch_sync(_threadQueue, ^{
         [_dbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
@@ -333,6 +342,8 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
  *  @return 返回成功或失败，只有所有的成功才会成功
  */
 -(BOOL)syncExecuteUpdates:(NSArray *)sqls withDictionaryArgs:(NSArray*)args{
+    [self p_checkMainThread];
+    
     __block BOOL success = NO;
     dispatch_sync(_threadQueue, ^{
         [_dbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
@@ -360,6 +371,8 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
  *  @return 返回成功或失败，只有所有的成功才会成功
  */
 -(BOOL)syncExecuteUpdates:(NSArray *)sqls withArrayArgs:(NSArray*)args{
+    [self p_checkMainThread];
+    
     __block BOOL success = NO;
     dispatch_sync(_threadQueue, ^{
         [_dbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
@@ -386,6 +399,8 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
  *  @param resultBlock 执行结果回调，只有所有的语句全部执行成功才会返回成功
  */
 -(void)asyncExecuteUpdates:(NSArray *)sqls resultBlock:(void(^)(BOOL result))resultBlock{
+    [self p_checkMainThread];
+    
     dispatch_async(_threadQueue, ^{
         [_dbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
             BOOL success = NO;
@@ -474,6 +489,8 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
  *  @return 返回查询结果，结果为NSArray，Array里面为NSDictionary
  */
 -(NSArray*)syncExecuteQuery:(NSString*)sql{
+    [self p_checkMainThread];
+    
     __block NSMutableArray *results = [[NSMutableArray alloc] init];
     dispatch_sync(_threadQueue, ^{
         [_dbQueue inDatabase:^(FMDatabase *db) {
@@ -498,6 +515,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
  *  @return 返回查询结果 ，结果为NSArray，Array里面为NSDictionary，是数据库的键值对
  */
 -(NSArray*)syncExecuteQuery:(NSString*)sql withDictionaryArgs:(NSDictionary*)args{
+    
+    [self p_checkMainThread];
+    
     __block NSMutableArray *results = [[NSMutableArray alloc] init];
     dispatch_sync(_threadQueue, ^{
         [_dbQueue inDatabase:^(FMDatabase *db) {
@@ -522,6 +542,8 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
  *  @return 返回查询结果 ，结果为NSArray,Array里面为NSDictionary，是数据库的键值对
  */
 -(NSArray*)syncExecuteQuery:(NSString*)sql withArrayArgs:(NSArray*)args{
+    [self p_checkMainThread];
+    
     __block NSMutableArray *results = [[NSMutableArray alloc] init];
     dispatch_sync(_threadQueue, ^{
         [_dbQueue inDatabase:^(FMDatabase *db) {
@@ -547,6 +569,8 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
  *  @return 返回NSDictionary
  */
 -(NSDictionary*)syncSingleExecuteQuery:(NSString*)sql{
+    [self p_checkMainThread];
+    
     __block NSDictionary* result = nil;
     dispatch_sync(_threadQueue, ^{
         [_dbQueue inDatabase:^(FMDatabase *db) {
@@ -568,6 +592,8 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
  *  @return 返回一个NSDictionary
  */
 -(NSDictionary*)syncSingleExecuteQuery:(NSString*)sql withDictionaryArgs:(NSDictionary*)args{
+    [self p_checkMainThread];
+    
     __block NSDictionary* result = nil;
     dispatch_sync(_threadQueue, ^{
         [_dbQueue inDatabase:^(FMDatabase *db) {
@@ -589,6 +615,8 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
  *  @return 返回查询结果 ，结果为NSDictionary
  */
 -(NSDictionary*)syncSingleExecuteQuery:(NSString*)sql withArrayArgs:(NSArray*)args{
+    [self p_checkMainThread];
+    
     __block NSDictionary* result = nil;
     dispatch_sync(_threadQueue, ^{
         [_dbQueue inDatabase:^(FMDatabase *db) {
@@ -611,6 +639,8 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
  *  @return 返回一个数组，数组中为对象
  */
 -(NSArray*)syncExecuteQuery:(NSString*)sql convertBlock:(id(^)(NSDictionary * result))convertBlock{
+    [self p_checkMainThread];
+    
     NSMutableArray* results = [[NSMutableArray alloc] init];
     dispatch_sync(_threadQueue, ^{
         [_dbQueue inDatabase:^(FMDatabase *db) {
@@ -637,6 +667,8 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
  *  @return 返回一个数组，数组中为对象
  */
 -(NSArray*)syncExecuteQuery:(NSString *)sql withDictionaryArgs:(NSDictionary*)args convertBlock:(id (^)(NSDictionary* result))convertBlock{
+    [self p_checkMainThread];
+    
     NSMutableArray* results = [[NSMutableArray alloc] init];
     dispatch_sync(_threadQueue, ^{
         [_dbQueue inDatabase:^(FMDatabase *db) {
@@ -664,6 +696,8 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
  */
 -(NSArray*)syncExecuteQuery:(NSString *)sql withArraysArgs:(NSArray*)args convertBlock:(id (^)(NSDictionary* result))convertBlock{
     NSMutableArray* results = [[NSMutableArray alloc] init];
+    [self p_checkMainThread];
+    
     dispatch_sync(_threadQueue, ^{
         [_dbQueue inDatabase:^(FMDatabase *db) {
             FMResultSet * rs = [db executeQuery:sql withArgumentsInArray:args];
@@ -689,7 +723,8 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
  *  @return 返回一个对象
  */
 -(id)syncSingleExecuteQuery:(NSString*)sql convertBlock:(id(^)(NSDictionary * result))convertBlock{
-
+    [self p_checkMainThread];
+    
    __block id result = nil;
     dispatch_sync(_threadQueue, ^{
         [_dbQueue inDatabase:^(FMDatabase *db) {
@@ -714,6 +749,7 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
  *  @return 返返回一个对象
  */
 -(id)syncSingleExecuteQuery:(NSString *)sql withDictionaryArgs:(NSDictionary*)args convertBlock:(id (^)(NSDictionary* result))convertBlock{
+    [self p_checkMainThread];
     
     __block id result = nil;
     dispatch_sync(_threadQueue, ^{
@@ -739,7 +775,7 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
  *  @return 返回一个对象
  */
 -(id)syncSingleExecuteQuery:(NSString *)sql withArraysArgs:(NSArray*)args convertBlock:(id (^)(NSDictionary* result))convertBlock{
-    
+    [self p_checkMainThread];
     __block id result = nil;
     dispatch_sync(_threadQueue, ^{
         [_dbQueue inDatabase:^(FMDatabase *db) {
@@ -1060,6 +1096,8 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
  *  @return 返回结果
  */
 -(BOOL)syncQueryTableExists:(NSString*)tableName{
+    [self p_checkMainThread];
+    
     __block BOOL exists = NO;
     NSString* sql = @"SELECT count(*) FROM sqlite_master WHERE type='table' AND name=? ";
     dispatch_sync(_threadQueue, ^{
@@ -1120,7 +1158,15 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
     return results;
 }
 
-
+/**
+ *  检查是否在主线程进行操作
+ */
+-(void)p_checkMainThread{
+    BOOL isMainThread = [NSThread isMainThread];
+    if (isMainThread) {
+        [NSException raise:@"db main thread exception" format:@"DB Actions Not Allow in Main Thread"];
+    }
+}
 
 
 @end

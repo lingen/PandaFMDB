@@ -33,10 +33,14 @@
     NSString* dbPath = NULL;
     
     OPFRepository* repository = [[OPFRepository alloc] initWith:dbPath tables:tables version:1];
-    
-    BOOL tableExists = [repository syncQueryTableExists:@"person_"];
-    
-    XCTAssertTrue(tableExists);
+
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0), ^{
+        BOOL tableExists = [repository syncQueryTableExists:@"person_"];
+        
+        XCTAssertTrue(tableExists);
+    });
+
+    [self waitForTimeInterval:4];
         
 }
 
