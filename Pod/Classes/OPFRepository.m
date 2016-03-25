@@ -152,26 +152,26 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
             [rs close];
         }];
         
+        NSMutableArray *sqls = [[NSMutableArray alloc] init];
+        
+        //对于更新，也需要创建不存在的表
+        for (Class tableProtocolClass in _tables) {
+            //进行数据库层的初始化操作
+            if ([tableProtocolClass conformsToProtocol:@protocol(OPFTableProtocol)]) {
+                OPFTable* opfTable = [tableProtocolClass performSelector:@selector(createTable)];
+                BOOL tableExist = [self syncQueryTableExists:opfTable.tableName];
+                if (!tableExist) {
+                    //获取建表语句
+                    [sqls addObject:[opfTable createTableSQL]];
+                    //获取创建索引的语句
+                    [sqls addObject:[opfTable createIndexSQL]];
+                }
+            }
+        }
+        
         //数据库升级行为
         for (int begin = dbVersion; dbVersion <= _version - 1 ; dbVersion++) {
             int end = begin + 1;
-            
-            NSMutableArray *sqls = [[NSMutableArray alloc] init];
-            
-            //对于更新，也需要创建不存在的表
-            for (Class tableProtocolClass in _tables) {
-                //进行数据库层的初始化操作
-                if ([tableProtocolClass conformsToProtocol:@protocol(OPFTableProtocol)]) {
-                    OPFTable* opfTable = [tableProtocolClass performSelector:@selector(createTable)];
-                    BOOL tableExist = [self syncQueryTableExists:opfTable.tableName];
-                    if (!tableExist) {
-                        //获取建表语句
-                        [sqls addObject:[opfTable createTableSQL]];
-                        //获取创建索引的语句
-                        [sqls addObject:[opfTable createIndexSQL]];
-                    }
-                }
-            }
             
             //进行表更新操作
             for (Class tableProtocolClass in _tables) {
