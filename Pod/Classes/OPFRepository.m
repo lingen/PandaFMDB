@@ -97,7 +97,7 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
  *数据库初始化操作
  */
 -(void)p_initDB{
-    dispatch_sync(_threadQueue, ^{
+    dispatch_async(_threadQueue, ^{
         [_dbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
             //创建版本号相关的表
             BOOL success = [db executeStatements:CREATE_VERSION_TABLE];
@@ -144,7 +144,7 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
  */
 -(void)p_updateDB{
     __block int dbVersion = 0;
-    dispatch_sync(_threadQueue, ^{
+    dispatch_async(_threadQueue, ^{
         
         [_dbQueue inDatabase:^(FMDatabase *db) {
             FMResultSet *rs = [db executeQuery:QUERY_CURRENT_VERSION];

@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "PandaFMDB"
-  s.version          = "0.1.1"
+  s.version          = "0.1.3"
   s.summary          = "PandaFMDB对FMDB的封装库"
 
 # This description is used to generate tags and improve search results.
