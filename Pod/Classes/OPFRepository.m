@@ -149,7 +149,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
         [_dbQueue inDatabase:^(FMDatabase *db) {
             FMResultSet *rs = [db executeQuery:QUERY_CURRENT_VERSION];
             dbVersion = [rs intForColumn:@"VALUE_"];
-            [rs close];
+            if (rs) {
+                [rs close];
+            }
         }];
         
         NSMutableArray *sqls = [[NSMutableArray alloc] init];
@@ -501,6 +503,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                     [results addObject:data];
                 }
             }
+            if (rs) {
+                [rs close];
+            }
         }];
     });
     return results;
@@ -528,6 +533,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                     [results addObject:data];
                 }
             }
+            if (rs) {
+                [rs close];
+            }
         }];
     });
     return results;
@@ -554,6 +562,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                     [results addObject:data];
                 }
             }
+            if (rs) {
+                [rs close];
+            }
         }];
     });
     return results;
@@ -578,6 +589,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
             if (rs.next) {
                 result = [self p_rsToNSDictionary:rs];
             }
+            if (rs) {
+                [rs close];
+            }
         }];
     });
     return result;
@@ -601,6 +615,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
             if (rs.next) {
                 result = [self p_rsToNSDictionary:rs];
             }
+            if (rs) {
+                [rs close];
+            }
         }];
     });
     return result;
@@ -623,6 +640,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
             FMResultSet * rs = [db executeQuery:sql withArgumentsInArray:args];
             if (rs.next) {
                 result = [self p_rsToNSDictionary:rs];
+            }
+            if (rs) {
+                [rs close];
             }
         }];
     });
@@ -650,6 +670,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                 if (data) {
                     [results addObject:convertBlock(data)];
                 }
+            }
+            if (rs) {
+                [rs close];
             }
         }];
     });
@@ -679,6 +702,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                     [results addObject:convertBlock(data)];
                 }
             }
+            if (rs) {
+                 [rs close];
+            }
         }];
     });
     return results;
@@ -707,6 +733,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                     [results addObject:convertBlock(data)];
                 }
             }
+            if (rs) {
+                [rs close];
+            }
         }];
     });
     return results;
@@ -732,6 +761,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
             if (rs.next) {
                 NSDictionary* data = [self p_rsToNSDictionary:rs];
                 result = convertBlock(data);
+            }
+            if (rs) {
+                [rs close];
             }
         }];
     });
@@ -759,6 +791,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                 NSDictionary* data = [self p_rsToNSDictionary:rs];
                 result = convertBlock(data);
             }
+            if (rs) {
+                [rs close];
+            }
         }];
     });
     return result;
@@ -783,6 +818,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
             if (rs.next) {
                 NSDictionary* data = [self p_rsToNSDictionary:rs];
                 result = convertBlock(data);
+            }
+            if (rs) {
+                [rs close];
             }
         }];
     });
@@ -809,6 +847,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                     [results addObject:data];
                 }
             }
+            if (rs) {
+                [rs close];
+            }
             if (resultBlock) {
                 resultBlock(results);
             }
@@ -833,6 +874,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                 if (data) {
                     [results addObject:data];
                 }
+            }
+            if (rs) {
+                [rs close];
             }
             if (resultBlock) {
                 resultBlock(results);
@@ -859,6 +903,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                     [results addObject:data];
                 }
             }
+            if (rs) {
+                [rs close];
+            }
             if (resultBlock) {
                 resultBlock(results);
             }
@@ -882,6 +929,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
             if (rs.next) {
                 result = [self p_rsToNSDictionary:rs];
             }
+            if (rs) {
+                [rs close];
+            }
             if (resultBlock) {
                 resultBlock(result);
             }
@@ -904,6 +954,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
             if (rs.next) {
                 result = [self p_rsToNSDictionary:rs];
             }
+            if (rs) {
+                [rs close];
+            }
             if (resultBlock) {
                 resultBlock(result);
             }
@@ -925,6 +978,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
             FMResultSet *rs = [db executeQuery:sql withArgumentsInArray:args];
             if (rs.next) {
                 result = [self p_rsToNSDictionary:rs];
+            }
+            if (rs) {
+                [rs close];
             }
             if (resultBlock) {
                 resultBlock(result);
@@ -951,6 +1007,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                 if (data) {
                     [results addObject:data];
                 }
+            }
+            if (rs) {
+                [rs close];
             }
             if (resultBlock) {
                 resultBlock(results);
@@ -979,6 +1038,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                     [results addObject:data];
                 }
             }
+            if (rs) {
+                [rs close];
+            }
             if (resultBlock) {
                 resultBlock(results);
             }
@@ -1006,6 +1068,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                     [results addObject:data];
                 }
             }
+            if (rs) {
+                [rs close];
+            }
             if (resultBlock) {
                 resultBlock(results);
             }
@@ -1031,6 +1096,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                 NSDictionary* data = [self p_rsToNSDictionary:rs];
                 result = convertBlock(data);
             }
+            if (rs) {
+                [rs close];
+            }
             if (resultBlock) {
                 resultBlock(result);
             }
@@ -1055,6 +1123,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                 NSDictionary* data = [self p_rsToNSDictionary:rs];
                 result = convertBlock(data);
             }
+            if (rs) {
+                [rs close];
+            }
             if (resultBlock) {
                 resultBlock(result);
             }
@@ -1078,6 +1149,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
             if (rs.next) {
                 NSDictionary* data = [self p_rsToNSDictionary:rs];
                 result = convertBlock(data);
+            }
+            if (rs) {
+                [rs close];
             }
             if (resultBlock) {
                 resultBlock(result);
@@ -1106,6 +1180,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
             if (rs.next) {
                 exists = YES;
             }
+            if (rs) {
+                [rs close];
+            }
         }];
     });
     return exists;
@@ -1131,6 +1208,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                 resultBlock(YES);
             }else{
                 resultBlock(NO);
+            }
+            if (rs) {
+                [rs close];
             }
         }];
     });
