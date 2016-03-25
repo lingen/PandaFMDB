@@ -161,7 +161,7 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
             //进行数据库层的初始化操作
             if ([tableProtocolClass conformsToProtocol:@protocol(OPFTableProtocol)]) {
                 OPFTable* opfTable = [tableProtocolClass performSelector:@selector(createTable)];
-                BOOL tableExist = [self syncQueryTableExists:opfTable.tableName];
+                BOOL tableExist = [self p_queryTableExists:opfTable.tableName];
                 if (!tableExist) {
                     //获取建表语句
                     [sqls addObject:[opfTable createTableSQL]];
@@ -1172,6 +1172,10 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
 -(BOOL)syncQueryTableExists:(NSString*)tableName{
     [self p_checkMainThread];
     
+    return [self p_queryTableExists:tableName];
+}
+
+-(BOOL)p_queryTableExists:(NSString*)tableName{
     __block BOOL exists = NO;
     NSString* sql = @"SELECT count(*) FROM sqlite_master WHERE type='table' AND name=? ";
     dispatch_sync(_threadQueue, ^{
