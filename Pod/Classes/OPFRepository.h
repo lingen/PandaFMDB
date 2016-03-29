@@ -13,6 +13,11 @@
 @interface OPFRepository : NSObject
 
 /**
+ *  是否开启严格模式
+ */
+@property (nonatomic,assign) BOOL strictMode;
+
+/**
  *  OPRepository初始化方法
  *
  *  @param dbPath  数据库路径
@@ -61,7 +66,7 @@
  *  @param sql         SQL语句
  *  @param resultBlock 异步回调值
  */
--(void)asyncExecuteUpdate:(NSString*)sql resultBlock:(void(^)(BOOL result))resultBlock;
+//-(void)asyncExecuteUpdate:(NSString*)sql resultBlock:(void(^)(BOOL result))resultBlock;
 
 /**
  *  异步执行一个更新操作
@@ -70,7 +75,7 @@
  *  @param args        参数列表
  *  @param resultBlock 异步回调值
  */
--(void)asyncExecuteUpdate:(NSString*)sql withDictionaryArgs:(NSDictionary*)args resultBlock:(void(^)(BOOL result))resultBlock;
+//-(void)asyncExecuteUpdate:(NSString*)sql withDictionaryArgs:(NSDictionary*)args resultBlock:(void(^)(BOOL result))resultBlock;
 
 /**
  *  异步执行一个更新操作
@@ -79,7 +84,7 @@
  *  @param args        参数列表
  *  @param resultBlock 异步回调值
  */
--(void)asyncExecuteUpdate:(NSString*)sql withArrayArgs:(NSArray*)args resultBlock:(void(^)(BOOL result))resultBlock;
+//-(void)asyncExecuteUpdate:(NSString*)sql withArrayArgs:(NSArray*)args resultBlock:(void(^)(BOOL result))resultBlock;
 
 #pragma 同步更新方法，多个SQL
 /**
@@ -112,6 +117,16 @@
 -(BOOL)syncExecuteUpdates:(NSArray *)sqls withArrayArgs:(NSArray*)args;
 
 
+/**
+ *  将BLOCK里的数据库操作，全部归纳到一个事务中去
+ *
+ *  @param dbBlock BLOC行为
+ *
+ *  @return 返回是否成功
+ */
+-(void)syncInTransaction:(void(^)(BOOL *rollback))dbBlock;
+
+
 #pragma 异步更新方法，多个SQL
 /**
  *  异步执行一系列的SQL语句
@@ -119,7 +134,7 @@
  *  @param sqls        SQL语句集合
  *  @param resultBlock 执行结果回调，只有所有的语句全部执行成功才会返回成功
  */
--(void)asyncExecuteUpdates:(NSArray *)sqls resultBlock:(void(^)(BOOL result))resultBlock;
+//-(void)asyncExecuteUpdates:(NSArray *)sqls resultBlock:(void(^)(BOOL result))resultBlock;
 
 /**
  *  异步执行一系列的SQL语句
@@ -128,7 +143,7 @@
  *  @param args        参数列表集合
  *  @param resultBlock 执行结果回调，只有所有的语句全部执行成功才会返回成功
  */
--(void)asyncExecuteUpdates:(NSArray *)sqls withDictionaryArgs:(NSArray*)args resultBlock:(void(^)(BOOL result))resultBlock;
+//-(void)asyncExecuteUpdates:(NSArray *)sqls withDictionaryArgs:(NSArray*)args resultBlock:(void(^)(BOOL result))resultBlock;
 
 /**
  *  异步执行一系列的SQL语句
@@ -137,7 +152,7 @@
  *  @param args        参数列表集合
  *  @param resultBlock 执行结果回调，只有所有的语句全部执行成功才会返回成功
  */
--(void)asyncExecuteUpdates:(NSArray *)sqls withArrayArgs:(NSArray*)args resultBlock:(void(^)(BOOL result))resultBlock;
+//-(void)asyncExecuteUpdates:(NSArray *)sqls withArrayArgs:(NSArray*)args resultBlock:(void(^)(BOOL result))resultBlock;
 
 #pragma 同步查询
 /**
@@ -277,7 +292,7 @@
  *  @param sql         语句SQL
  *  @param resultBlock result回调，回调返回NSArray，NSArray中为NSDictionary
  */
--(void)asyncExecuteQuery:(NSString*)sql resultBlock:(void(^)(NSArray*))resultBlock;
+//-(void)asyncExecuteQuery:(NSString*)sql resultBlock:(void(^)(NSArray*))resultBlock;
 
 /**
  *  异步执行查询
@@ -286,7 +301,7 @@
  *  @param args        参数列表
  *  @param resultBlock result回调，回调返回NSArray，NSArray中为NSDictionary
  */
--(void)asyncExecuteQuery:(NSString *)sql withDictionaryArgs:(NSDictionary*)args resultBlock:(void (^)(NSArray* result))resultBlock;
+//-(void)asyncExecuteQuery:(NSString *)sql withDictionaryArgs:(NSDictionary*)args resultBlock:(void (^)(NSArray* result))resultBlock;
 
 /**
  *  异步执行查询
@@ -295,7 +310,7 @@
  *  @param args        参数列表
  *  @param resultBlock result回调，回调返回NSArray，NSArray中为NSDictionary
  */
--(void)asyncExecuteQuery:(NSString *)sql withArrayArgs:(NSArray*)args resultBlock:(void (^)(NSArray* result))resultBlock;
+//-(void)asyncExecuteQuery:(NSString *)sql withArrayArgs:(NSArray*)args resultBlock:(void (^)(NSArray* result))resultBlock;
 
 #pragma 异步查询，单例
 
@@ -305,7 +320,7 @@
  *  @param sql         语句SQL
  *  @param resultBlock result回调，回调返回NSDictionary
  */
--(void)asyncSingleExecuteQuery:(NSString*)sql resultBlock:(void(^)(NSDictionary* result))resultBlock;
+//-(void)asyncSingleExecuteQuery:(NSString*)sql resultBlock:(void(^)(NSDictionary* result))resultBlock;
 
 /**
  *  异步执行查询
@@ -314,7 +329,7 @@
  *  @param args        参数列表
  *  @param resultBlock result回调，回调返回NSDictionary
  */
--(void)asyncSingleExecuteQuery:(NSString *)sql withDictionaryArgs:(NSDictionary*)args resultBlock:(void (^)(NSDictionary* result))resultBlock;
+//-(void)asyncSingleExecuteQuery:(NSString *)sql withDictionaryArgs:(NSDictionary*)args resultBlock:(void (^)(NSDictionary* result))resultBlock;
 
 /**
  *  异步执行查询
@@ -323,7 +338,7 @@
  *  @param args        参数列表
  *  @param resultBlock result回调，回调返回NSDictionary
  */
--(void)asyncSingleExecuteQuery:(NSString *)sql withArrayArgs:(NSArray*)args resultBlock:(void (^)(NSDictionary* result))resultBlock;
+//-(void)asyncSingleExecuteQuery:(NSString *)sql withArrayArgs:(NSArray*)args resultBlock:(void (^)(NSDictionary* result))resultBlock;
 
 #pragma 异步查询，NSDictionary
 /**
@@ -333,7 +348,7 @@
  *  @param convertBlock NSDictionary转成id对象的Block
  *  @param resultBlock  返回Block,结果为NSArray的ID对象集合
  */
--(void)asyncExecuteQuery:(NSString*)sql convertBlock:(id(^)(NSDictionary*))convertBlock resultBlock:(void(^)(NSArray*))resultBlock;
+//-(void)asyncExecuteQuery:(NSString*)sql convertBlock:(id(^)(NSDictionary*))convertBlock resultBlock:(void(^)(NSArray*))resultBlock;
 
 /**
  *  异步查询，返回对象集合
@@ -343,7 +358,7 @@
  *  @param convertBlock NSDictionary转成id对象的Block
  *  @param resultBlock  返回Block,结果为NSArray的ID对象集合
  */
--(void)asyncExecuteQuery:(NSString*)sql withDictionaryArgs:(NSDictionary*)args convertBlock:(id(^)(NSDictionary*))convertBlock resultBlock:(void(^)(NSArray*))resultBlock;
+//-(void)asyncExecuteQuery:(NSString*)sql withDictionaryArgs:(NSDictionary*)args convertBlock:(id(^)(NSDictionary*))convertBlock resultBlock:(void(^)(NSArray*))resultBlock;
 /**
  *  异步查询，返回对象集合
  *
@@ -352,7 +367,7 @@
  *  @param convertBlock NSDictionary转成id对象的Block
  *  @param resultBlock  返回Block,结果为NSArray的ID对象集合
  */
--(void)asyncExecuteQuery:(NSString*)sql withArrayArgs:(NSArray*)args convertBlock:(id(^)(NSDictionary*))convertBlock resultBlock:(void(^)(NSArray*))resultBlock;
+//-(void)asyncExecuteQuery:(NSString*)sql withArrayArgs:(NSArray*)args convertBlock:(id(^)(NSDictionary*))convertBlock resultBlock:(void(^)(NSArray*))resultBlock;
 
 #pragma 异步查询，单例
 /**
@@ -362,7 +377,7 @@
  *  @param convertBlock NSDictionary转成id对象的Block
  *  @param resultBlock  返回Block,结果为ID
  */
--(void)asyncSingleExecuteQuery:(NSString*)sql convertBlock:(id(^)(NSDictionary*))convertBlock resultBlock:(void(^)(id))resultBlock;
+//-(void)asyncSingleExecuteQuery:(NSString*)sql convertBlock:(id(^)(NSDictionary*))convertBlock resultBlock:(void(^)(id))resultBlock;
 
 /**
  *  异步单例查询
@@ -372,7 +387,7 @@
  *  @param convertBlock NSDictionary转成id对象的Block
  *  @param resultBlock  返回Block,结果为ID
  */
--(void)asyncSingleExecuteQuery:(NSString*)sql withDictionaryArgs:(NSDictionary*)args convertBlock:(id(^)(NSDictionary*))convertBlock resultBlock:(void(^)(id))resultBlock;
+//-(void)asyncSingleExecuteQuery:(NSString*)sql withDictionaryArgs:(NSDictionary*)args convertBlock:(id(^)(NSDictionary*))convertBlock resultBlock:(void(^)(id))resultBlock;
 /**
  *  异步单例查询
  *
@@ -381,7 +396,7 @@
  *  @param convertBlock NSDictionary转成id对象的Block
  *  @param resultBlock  返回Block,结果为ID
  */
--(void)asyncSingleExecuteQuery:(NSString*)sql withArrayArgs:(NSArray*)args convertBlock:(id(^)(NSDictionary*))convertBlock resultBlock:(void(^)(id))resultBlock;
+//-(void)asyncSingleExecuteQuery:(NSString*)sql withArrayArgs:(NSArray*)args convertBlock:(id(^)(NSDictionary*))convertBlock resultBlock:(void(^)(id))resultBlock;
 
 /**
  *  同步查询数据库中某个表是否存在
