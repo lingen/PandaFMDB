@@ -12,6 +12,9 @@
 #import "OPFTable.h"
 #import "FMDatabaseQueue+OPH.h"
 
+
+static NSString* DB_THREAD_NAME = @"PANDA DB Thread";
+
 @interface OPFRepository()
 
 /*
@@ -33,6 +36,11 @@
  *数据库队列
  */
 @property (nonatomic,strong) dispatch_queue_t threadQueue;
+
+/*
+ *数据库执行队列
+ */
+@property (nonatomic,strong) dispatch_queue_t executeQueue;
 
 /*
  *数据库TAG
@@ -72,6 +80,10 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
         
         NSString *threadName = [NSString stringWithFormat:@"db.panda.%@",_tag];
         _threadQueue = dispatch_queue_create([threadName UTF8String], NULL);
+         
+         NSString *executeThreadName = [NSString stringWithFormat:@"db.panda.execute.%@",_tag];
+
+         _executeQueue = dispatch_queue_create([executeThreadName UTF8String], NULL);
         [self p_initRepository];
         return self;
     }
@@ -83,6 +95,9 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
  */
 -(void)p_initRepository{
     
+     if (_dbQueue) {
+          [_dbQueue close];
+     }
     BOOL dbFileExists = [[NSFileManager defaultManager] fileExistsAtPath:_dbPath];
     _dbQueue = [FMDatabaseQueue databaseQueueWithPath:_dbPath];
     
@@ -98,7 +113,7 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
  *数据库初始化操作
  */
 -(void)p_initDB{
-     dispatch_async(_threadQueue, ^{
+     dispatch_sync(_threadQueue, ^{
 
          [_dbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
               //创建版本号相关的表
@@ -126,8 +141,12 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                         OPFTable* opfTable = [tableProtocolClass performSelector:@selector(createTable)];
                         //获取建表语句
                         [sqls addObject:[opfTable createTableSQL]];
-                        //获取创建索引的语句
-                        [sqls addObject:[opfTable createIndexSQL]];
+                        
+                        NSString* indexSQL = [opfTable createIndexSQL];
+                        if (indexSQL && ![indexSQL isEqualToString:@""]) {
+                             //获取创建索引的语句
+                             [sqls addObject:indexSQL];
+                        }
                    }
               }
               
@@ -142,7 +161,11 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                    }
               }
          }];
-          });
+     });
+}
+
+-(void)close{
+     [_dbQueue close];
 }
 
 /*
@@ -150,7 +173,7 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
  */
 -(void)p_updateDB{
     __block int dbVersion = 0;
-    dispatch_async(_threadQueue, ^{
+    dispatch_sync(_threadQueue, ^{
         
         [_dbQueue inDatabase:^(FMDatabase *db) {
             FMResultSet *rs = [db executeQuery:QUERY_CURRENT_VERSION];
@@ -171,8 +194,11 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                 if (!tableExist) {
                     //获取建表语句
                     [sqls addObject:[opfTable createTableSQL]];
-                    //获取创建索引的语句
-                    [sqls addObject:[opfTable createIndexSQL]];
+                     NSString* indexSQL = [opfTable createIndexSQL];
+                     if (indexSQL && ![indexSQL isEqualToString:@""]) {
+                          //获取创建索引的语句
+                          [sqls addObject:indexSQL];
+                     }
                 }
             }
         }
@@ -189,19 +215,20 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                     [sqls addObjectsFromArray:tableSQLs];
                 }
             }
-            
-             [_dbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
-                  for (NSString* sql in sqls) {
-                       BOOL update =   [db executeUpdate:sql];
-                       if (!update) {
-                            [self p_strictMode:[db lastError]];
-                            *rollback = YES;
-                            break;
-                       }
-                  }
-             }];
         }
+         
+         [_dbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
+              for (NSString* sql in sqls) {
+                   BOOL update =   [db executeUpdate:sql];
+                   if (!update) {
+                        [self p_strictMode:[db lastError]];
+                        *rollback = YES;
+                        break;
+                   }
+              }
+         }];
     });
+     
 }
 
 #pragma 同步更新方法，单个SQL
@@ -219,7 +246,6 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
 
     __block BOOL success = NO;
          [self p_dbWrite:^(FMDatabase *db, BOOL *rollback) {
-              [_dbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
                    success = [db executeUpdate:sql];
 
                    if (!success) {
@@ -227,7 +253,6 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                         *rollback = YES;
                    }
               }];
-         }];
     return success;
 }
 
@@ -407,13 +432,18 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
  */
 -(void)syncInTransaction:(void(^)(BOOL *rollback))dbBlock{
      NSDate* tmpStartData = [NSDate date];
+     NSString* currentThreadName = [NSThread currentThread].name;
+     BOOL inTransaction = [DB_THREAD_NAME isEqualToString:currentThreadName];
      
-     BOOL inTransaction = [_dbQueue isInTransaction];
      if (!inTransaction) {
           dispatch_sync(_threadQueue, ^{
+               [[NSThread currentThread] setName:DB_THREAD_NAME];
+
                [_dbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
                     dbBlock(&*rollback);
                }];
+               [[NSThread currentThread] setName:nil];
+
           });
      }else{
           [_dbQueue inWrtite:^(FMDatabase *db, BOOL *rollback) {
@@ -881,10 +911,11 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                     NSDictionary* data = [self p_rsToNSDictionary:rs];
                     result = convertBlock(data);
                }
-          [self p_strictMode:[db lastError]];
                if (rs) {
                     [rs close];
                }
+          [self p_strictMode:[db lastError]];
+
      }];
     return result;
     
@@ -909,10 +940,11 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                     [results addObject:data];
                 }
             }
-             [self p_strictMode:[db lastError]];
             if (rs) {
                 [rs close];
             }
+             [self p_strictMode:[db lastError]];
+
             if (resultBlock) {
                 resultBlock(results);
             }
@@ -938,10 +970,11 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                     [results addObject:data];
                 }
             }
-             [self p_strictMode:[db lastError]];
             if (rs) {
                 [rs close];
             }
+             [self p_strictMode:[db lastError]];
+
             if (resultBlock) {
                 resultBlock(results);
             }
@@ -967,10 +1000,11 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                     [results addObject:data];
                 }
             }
-             [self p_strictMode:[db lastError]];
             if (rs) {
                 [rs close];
             }
+             [self p_strictMode:[db lastError]];
+
             if (resultBlock) {
                 resultBlock(results);
             }
@@ -994,10 +1028,11 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
             if (rs.next) {
                 result = [self p_rsToNSDictionary:rs];
             }
-             [self p_strictMode:[db lastError]];
             if (rs) {
                 [rs close];
             }
+             [self p_strictMode:[db lastError]];
+
             if (resultBlock) {
                 resultBlock(result);
             }
@@ -1020,10 +1055,11 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
             if (rs.next) {
                 result = [self p_rsToNSDictionary:rs];
             }
-            [self p_strictMode:[db lastError]];
             if (rs) {
                 [rs close];
             }
+             [self p_strictMode:[db lastError]];
+
             if (resultBlock) {
                 resultBlock(result);
             }
@@ -1046,10 +1082,11 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
             if (rs.next) {
                 result = [self p_rsToNSDictionary:rs];
             }
-             [self p_strictMode:[db lastError]];
             if (rs) {
                 [rs close];
             }
+             [self p_strictMode:[db lastError]];
+
             if (resultBlock) {
                 resultBlock(result);
             }
@@ -1076,10 +1113,11 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                     [results addObject:data];
                 }
             }
-             [self p_strictMode:[db lastError]];
             if (rs) {
                 [rs close];
             }
+             [self p_strictMode:[db lastError]];
+
             if (resultBlock) {
                 resultBlock(results);
             }
@@ -1107,10 +1145,11 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                     [results addObject:data];
                 }
             }
-             [self p_strictMode:[db lastError]];
             if (rs) {
                 [rs close];
             }
+             [self p_strictMode:[db lastError]];
+
             if (resultBlock) {
                 resultBlock(results);
             }
@@ -1138,10 +1177,11 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                     [results addObject:data];
                 }
             }
-            [self p_strictMode:[db lastError]];
             if (rs) {
                 [rs close];
             }
+             [self p_strictMode:[db lastError]];
+
             if (resultBlock) {
                 resultBlock(results);
             }
@@ -1167,10 +1207,10 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                 NSDictionary* data = [self p_rsToNSDictionary:rs];
                 result = convertBlock(data);
             }
-             [self p_strictMode:[db lastError]];
             if (rs) {
                 [rs close];
             }
+             [self p_strictMode:[db lastError]];
             if (resultBlock) {
                 resultBlock(result);
             }
@@ -1195,10 +1235,11 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                 NSDictionary* data = [self p_rsToNSDictionary:rs];
                 result = convertBlock(data);
             }
-             [self p_strictMode:[db lastError]];
             if (rs) {
                 [rs close];
             }
+            [self p_strictMode:[db lastError]];
+
             if (resultBlock) {
                 resultBlock(result);
             }
@@ -1223,13 +1264,14 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
                 NSDictionary* data = [self p_rsToNSDictionary:rs];
                 result = convertBlock(data);
             }
-             [self p_strictMode:[db lastError]];
             if (rs) {
                 [rs close];
             }
             if (resultBlock) {
                 resultBlock(result);
             }
+            [self p_strictMode:[db lastError]];
+
         }];
     });
 }
@@ -1254,7 +1296,7 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
 -(BOOL)p_queryTableExists:(NSString*)tableName{
      __block BOOL exists = NO;
 
-    NSString* sql = @"SELECT count(*) FROM sqlite_master WHERE type='table' AND name=? ";
+    NSString* sql = @"SELECT * FROM sqlite_master WHERE type='table' AND name=?";
         [_dbQueue inDatabase:^(FMDatabase *db) {
             FMResultSet *rs  = [db executeQuery:sql withArgumentsInArray:@[tableName]];
             if (rs.next) {
@@ -1327,7 +1369,8 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
 }
 
 -(void)p_dbWrite:(void (^)(FMDatabase *db, BOOL *rollback))block{
-     BOOL inTransaction = [_dbQueue isInTransaction];
+     NSString* currentThreadName = [NSThread currentThread].name;
+     BOOL inTransaction = [DB_THREAD_NAME isEqualToString:currentThreadName];
 
      if (inTransaction) {
           [_dbQueue inWrtite:^(FMDatabase *db, BOOL *rollback) {
@@ -1335,34 +1378,40 @@ static NSString* DEFAULT_TAG = @"DEFAULT";
           }];
      }else{
           dispatch_sync(_threadQueue, ^{
+               [[NSThread currentThread] setName:DB_THREAD_NAME];
                [_dbQueue inTransaction:^(FMDatabase *db, BOOL *rollback) {
                     block(db,&*rollback);
                }];
+               [[NSThread currentThread] setName:nil];
           });
      }
 }
 
 -(void)p_dbRead:(void (^)(FMDatabase *db))block{
-     BOOL inTransaction = [_dbQueue isInTransaction];
-     
+     NSString* currentThreadName = [NSThread currentThread].name;
+     BOOL inTransaction = [DB_THREAD_NAME isEqualToString:currentThreadName];
+
      if (inTransaction) {
           [_dbQueue inReader:^(FMDatabase *db) {
                block(db);
           }];
      }else{
           dispatch_sync(_threadQueue, ^{
+               [[NSThread currentThread] setName:DB_THREAD_NAME];
                [_dbQueue inDatabase:^(FMDatabase *db) {
                     block(db);
                }];
+               [[NSThread currentThread] setName:nil];
           });
      }
+     
 }
 
 /**
  *  严格模式的行为
  */
 -(void)p_strictMode:(NSError*)error{
-     if (error.code ==0 ) {
+     if (error.code ==0 || error.code == 100) {
           return;
      }
      NSString* errorString = [NSString stringWithFormat:@"%@:%@",@"StrictMode DB Error:",error.domain];

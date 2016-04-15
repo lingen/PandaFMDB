@@ -17,6 +17,9 @@
  */
 @property (nonatomic,assign) BOOL strictMode;
 
+
+-(void)close;
+
 /**
  *  OPRepository初始化方法
  *
