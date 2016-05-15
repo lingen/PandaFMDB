@@ -1,32 +1,4 @@
-# PandaFMDB
-
-[![CI Status](http://img.shields.io/travis/lingen.liu/PandaFMDB.svg?style=flat)](https://travis-ci.org/lingen.liu/PandaFMDB)
-[![Version](https://img.shields.io/cocoapods/v/PandaFMDB.svg?style=flat)](http://cocoapods.org/pods/PandaFMDB)
-[![License](https://img.shields.io/cocoapods/l/PandaFMDB.svg?style=flat)](http://cocoapods.org/pods/PandaFMDB)
-[![Platform](https://img.shields.io/cocoapods/p/PandaFMDB.svg?style=flat)](http://cocoapods.org/pods/PandaFMDB)
-
-## Usage
-
-To run the example project, clone the repo, and run `pod install` from the Example directory first.
-
-## Requirements
-
-## Installation
-
-PandaFMDB is available through [CocoaPods](http://cocoapods.org). To install
-it, simply add the following line to your Podfile:
-
-```ruby
-pod "PandaFMDB"
-```
-
-## Author
-
-lingen.liu, lingen.liu@gmail.com
-
-## License
-
-PandaFMDB is available under the MIT license. See the LICENSE file for more info.
+> 阅读前，你应该要了解我所倡导的IOS规范 [IOS规范](http://ios-guildline.openpanda.org/)
 
 #PandaFMDB简述
 ##PandaFMDB
